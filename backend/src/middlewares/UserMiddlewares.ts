@@ -31,7 +31,7 @@ async function inputValidationMiddleware(c:Context,next:Next){
     }
 }
 
-async function userAlreadyExistsCheckMiddleware(c:Context, next:Next){
+async function userAlreadyExistsCheckMiddlewareSignup(c:Context, next:Next){
     //check if user already exists
     //if exists return error else next
 
@@ -59,6 +59,34 @@ async function userAlreadyExistsCheckMiddleware(c:Context, next:Next){
     }
 }
 
+async function userAlreadyExistsCheckMiddlewareSignin(c:Context, next:Next){
+    //check if user already exists
+    //if exists return error else next
+
+    try {
+        const {DATABASE_URL}=env<{DATABASE_URL:string}>(c)
+        const prisma=new PrismaClient({
+            datasourceUrl:DATABASE_URL
+        }).$extends(withAccelerate());
+
+        const {email}=await c.req.json();
+        //check if user already exists
+        const user=await prisma.user.findUnique({
+            where:{
+                email
+            }
+        });
+        //if user exists return error else next
+        if(user){
+            await next();
+        }else{
+            return c.json({message:"User already exists"},400);
+        }
+    } catch (error) {
+        return c.json({message:"some server issue in user already exists check middleware"},500);
+    }
+}
+
 
 //export both
-export { inputValidationMiddleware, userAlreadyExistsCheckMiddleware };
+export { inputValidationMiddleware, userAlreadyExistsCheckMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignup };
