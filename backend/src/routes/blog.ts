@@ -1,20 +1,21 @@
 import { Hono } from "hono";
+import { tokenValidationMiddleware } from "../middlewares/BlogMiddlewares";
 
 const blogRoutes=new Hono();
 
-blogRoutes.post("/blog",(c)=>{
+blogRoutes.post("/blog",tokenValidationMiddleware, (c)=>{
     return c.text("Hello User Routes blog post");
 })
 
-blogRoutes.get("/blog",(c)=>{
+blogRoutes.get("/blog",tokenValidationMiddleware, (c)=>{
     return c.text("Hello User Routes blog get");
 })
 
-blogRoutes.put("/blog",(c)=>{
+blogRoutes.put("/blog",tokenValidationMiddleware, (c)=>{
     return c.text("Hello User Routes blog put");
 })
 
-blogRoutes.delete("/blog",(c)=>{
+blogRoutes.delete("/blog",tokenValidationMiddleware, (c)=>{
     return c.text("Hello User Routes blog delete");
 })
 
