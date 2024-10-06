@@ -7,6 +7,22 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign, verify } from "jsonwebtoken";
 
+const blogSchema=z.object({
+    title:z.string().min(4),
+    content:z.string().min(10),
+});
+
+async function inputValidationmiddleware(c:Context,next:Next){
+    const body=await c.req.json();
+    const blog=blogSchema.safeParse(body);
+    if(blog.success){
+        await next();
+    }
+    else{
+        return c.json({message:"Enter input credentials in proper format"},400);
+    }
+}
+
 
 async function tokenValidationMiddleware(c:Context,next:Next){
     //seeif header has an authorization
@@ -51,5 +67,6 @@ async function tokenValidationMiddleware(c:Context,next:Next){
 }
 
 export {
-    tokenValidationMiddleware
+    tokenValidationMiddleware,
+    inputValidationmiddleware
 }
