@@ -21,12 +21,11 @@ userRoutes.post("/signup",inputValidationMiddleware,userAlreadyExistsCheckMiddle
 
     const {uname,email,pass}=await c.req.json();
     //hash the password and username 
-    const hashedUname:string = SHA256(uname).toString();
     const hashedPass:string = SHA256(pass).toString();
 
     const user:{email:string}=await prisma.user.create({
         data:{
-            uname:hashedUname,
+            uname:uname,
             email,
             pass:hashedPass
         },
@@ -34,6 +33,7 @@ userRoutes.post("/signup",inputValidationMiddleware,userAlreadyExistsCheckMiddle
             email:true,
         }
     });
+    
     //send response asuser json with status codes
     return c.json(user,201);
 });
@@ -42,11 +42,30 @@ userRoutes.post("/signin",inputValidationMiddleware,userAlreadyExistsCheckMiddle
     //we know that user already exists and inputs are in correct format so we will directly generate a jwt token valid for 6 hours and send it in response
     //we will use the username in hashed format to generate the token
     const {uname}=await c.req.json();
-    const hashedUname:string = SHA256(uname).toString();
-    //generate jwt token
-    const token:string = sign({uname:hashedUname},secret,{expiresIn:"6h"});
-    //send response with token
-    return c.json({token},200);
+    //extract userid corresponsding to given uname and store that uid in jwt also the uname in db is not hashed its in normal form
+    
+
+    const {DATABASE_URL}=env<{DATABASE_URL:string}>(c)
+    const prisma=new PrismaClient({
+        datasourceUrl:DATABASE_URL
+    }).$extends(withAccelerate());
+    //get the user id from the database using the username
+    const user=await prisma.user.findFirst({
+        where:{
+            uname
+        },select:{
+            id:true
+        }
+    });
+
+    if(user){
+        //generate jwt token
+        const token:string = sign({id:user.id},secret,{expiresIn:"6h"});
+        //send response with token
+        return c.json({token},200);
+    }else{
+        return c.json({message:"User does not exists"},401);
+    }
 })
 
 //export

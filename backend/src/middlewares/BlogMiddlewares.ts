@@ -6,7 +6,6 @@ import { env } from "hono/adapter";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign, verify } from "jsonwebtoken";
-import SHA256 from 'crypto-js/sha256';
 
 
 async function tokenValidationMiddleware(c:Context,next:Next){
@@ -17,8 +16,13 @@ async function tokenValidationMiddleware(c:Context,next:Next){
         if (!token) {
             return c.json({ message: "Please provide a valid token" }, 401);
         }
-        const decodedToken = verify(token, "secret") as unknown as { uname: string };
-        const { uname } = decodedToken;
+        let id:string;
+        try {
+            const decodedToken = verify(token, "secret") as unknown as { id: string };
+            id = decodedToken.id;
+        } catch (error) {
+            return c.json({ message: "Invalid token" }, 401);
+        }
         //now search db if same uname exists let it pass
         try {
             const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
@@ -27,7 +31,9 @@ async function tokenValidationMiddleware(c:Context,next:Next){
             }).$extends(withAccelerate());
             const user = await prisma.user.findFirst({
                 where:{
-                    uname
+                    id
+                },select:{
+                    id:true
                 }
             });   
             if(user){
