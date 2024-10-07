@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { tokenValidationMiddleware,inputValidationmiddleware } from "../middlewares/BlogMiddlewares";
+import { tokenValidationMiddleware,inputValidationmiddleware, editDeleteBlogMiddleware } from "../middlewares/BlogMiddlewares";
 import { env } from "hono/adapter";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
@@ -47,16 +47,119 @@ blogRoutes.post("/blog",tokenValidationMiddleware, inputValidationmiddleware, as
     }
 })
 
-blogRoutes.get("/blog",tokenValidationMiddleware, (c)=>{
-    return c.text("Hello User Routes blog get");
+blogRoutes.get("/blog",tokenValidationMiddleware, async (c)=>{
+    //return all blogs
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL
+    }).$extends(withAccelerate());
+    try {
+        const blogs=await prisma.blogs.findMany({
+            select:{
+                title:true,
+                content:true,
+            }
+        });
+        return c.json(blogs,200);
+    } catch (error) {
+        return c.json({message:"Some server issue in getting blogs from db"},500);
+    }
 })
 
-blogRoutes.put("/blog",tokenValidationMiddleware, inputValidationmiddleware, (c)=>{
-    return c.text("Hello User Routes blog put");
+blogRoutes.get("/blog/:id", tokenValidationMiddleware, async (c)=>{
+    //return blog with given id
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL
+    }).$extends(withAccelerate());
+    const id= c.req.param("id");
+    try {
+        const blog=await prisma.blogs.findUnique({
+            where:{
+                id
+            },
+        });
+        return c.json(blog,200);
+    } catch (error) {
+        return c.json({message:"Some server issue in getting blog from db"},500);
+    }
 })
 
-blogRoutes.delete("/blog",tokenValidationMiddleware, (c)=>{
-    return c.text("Hello User Routes blog delete");
+blogRoutes.put("/blog",tokenValidationMiddleware, inputValidationmiddleware, editDeleteBlogMiddleware, async (c)=>{
+    //update blog
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL
+    }).$extends(withAccelerate());
+    const { id, title, content } = await c.req.json();
+    try {
+        const blog=await prisma.blogs.update({
+            where:{
+                id
+            },
+            data:{
+                title,
+                content
+            },
+            select:{
+                id:true
+            }
+        });
+        return c.json(blog,200);
+    } catch (error) {
+        return c.json({message:"Some server issue in updating blog in db"},500);
+    }
+})
+
+blogRoutes.delete("/blog",tokenValidationMiddleware, editDeleteBlogMiddleware, async (c)=>{
+    //delete blog from db and id of blog is in request body as id
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL
+    }).$extends(withAccelerate());
+    const { id } = await c.req.json();
+    if(!id){
+        return c.json({message:"Please provide the id of the blog to delete"},400);
+    }
+    try {
+        const blog=await prisma.blogs.delete({
+            where:{
+                id
+            }
+        });
+        return c.json(blog,200);
+    } catch (error) {
+        return c.json({message:"Some server issue in deleting blog from db"},500);
+    }
+})
+
+blogRoutes.get("/getmyblogs",tokenValidationMiddleware, async (c)=>{
+    //get all blogs of the user
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+    const prisma = new PrismaClient({
+        datasourceUrl: DATABASE_URL
+    }).$extends(withAccelerate());
+    let id:string;
+    try {
+        const token=await c.req.header("authorization");
+        if (!token) {
+            return c.json({ message: "Token is missing" }, 401);
+        }
+        const decodedToken = verify(token, "secret") as unknown as { id: string };
+        id = decodedToken.id;
+    } catch (error) {
+        return c.json({ message: "Invalid token" }, 401);
+    }
+    try {
+        const blogs=await prisma.blogs.findMany({
+            where:{
+                authorId:id
+            }
+        });
+        return c.json(blogs,200);
+    } catch (error) {
+        return c.json({message:"Some server issue in getting blogs from db"},500);
+    }
 })
 
 //export

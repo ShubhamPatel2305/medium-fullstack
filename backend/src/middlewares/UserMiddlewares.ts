@@ -1,6 +1,7 @@
 //import zod
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { SHA256 } from "crypto-js";
 import { Context, Next } from "hono";
 import { env } from "hono/adapter";
 import { z } from "zod";
@@ -60,27 +61,34 @@ async function userAlreadyExistsCheckMiddlewareSignup(c:Context, next:Next){
 }
 
 async function userAlreadyExistsCheckMiddlewareSignin(c:Context, next:Next){
-    //check if user already exists
-    //if exists return error else next
-
+    //check if user exists
     try {
         const {DATABASE_URL}=env<{DATABASE_URL:string}>(c)
         const prisma=new PrismaClient({
             datasourceUrl:DATABASE_URL
         }).$extends(withAccelerate());
 
-        const {email}=await c.req.json();
+        const data=await c.req.json();
+        const email=data.email
+        const pass=data.pass
+        const uname=data.uname
+        const hashedPass:string = SHA256(pass).toString();
         //check if user already exists
-        const user=await prisma.user.findUnique({
+        const user=await prisma.user.findFirst({
             where:{
-                email
+                email:email,
+                pass:hashedPass,
+                uname:uname
+            },select:{
+                id:true
             }
         });
-        //if user exists return error else next
+        //if user exists next else return error
         if(user){
             await next();
-        }else{
-            return c.json({message:"User already exists"},400);
+        }
+        else{
+            return c.json({message:"User does not exists"},401);
         }
     } catch (error) {
         return c.json({message:"some server issue in user already exists check middleware"},500);

@@ -66,7 +66,46 @@ async function tokenValidationMiddleware(c:Context,next:Next){
     }
 }
 
+async function editDeleteBlogMiddleware(c:Context, next:Next){
+    //check if the blog exists and the user is the author of the blog
+    //if yes let it pass else return
+    try {
+        const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+        const prisma = new PrismaClient({
+            datasourceUrl: DATABASE_URL
+        }).$extends(withAccelerate());
+        const { id } = await c.req.json();
+        const token=await c.req.header("authorization");
+        if (!token) {
+            return c.json({ message: "Token is missing" }, 401);
+        }
+        const decodedToken = verify(token, "secret") as unknown as { id: string };
+        const userId = decodedToken.id;
+        //check if the blog exists
+        const blog = await prisma.blogs.findFirst({
+            where:{
+                id
+            },select:{
+                authorId:true
+            }
+        });
+        if(blog){
+            if(blog.authorId===userId){
+                await next();
+            }else{
+                return c.json({message:"You are not the author of the blog"},401);
+            }
+        }
+        else{
+            return c.json({message:"Blog does not exists"},404);
+        }
+    } catch (error) {
+        return c.json({message:"Some server issue in edit delete blog middleware"},500);
+    }
+}
+
 export {
     tokenValidationMiddleware,
-    inputValidationmiddleware
+    inputValidationmiddleware,
+    editDeleteBlogMiddleware
 }
