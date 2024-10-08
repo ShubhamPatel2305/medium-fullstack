@@ -2,10 +2,10 @@ import React from 'react'
 
 const SignUpForm = () => {
   return (
-    <div className="h-screen flex flex-col justify-center text-center px-44">
+    <div className="h-screen flex flex-col justify-center text-center">
       <div className="text-4xl font-bold">Create An Account</div>
       <div className="text-lg text-gray-500 pt-4">Already have an account? <a href="/login" className="underline"> Login </a> </div>
-      <div className="text-left pt-5 grid-rows-2 gap-4">
+      <div className="text-left pt-5 grid-rows-2 gap-4 px-1/5  lg:px-1/4">
         <form>
         <div className="pb-2">
           <label htmlFor="uname" className="font-semibold">Username</label>
