@@ -5,6 +5,12 @@ const SignUpForm = () => {
   const [sup, setsup] = useState(true);
   const [isFading, setIsFading] = useState(false);
 
+  const [inputs,setinputs]=useState({
+    username: '',
+    email: '',
+    password: ''
+  })
+
   const toggleForm = () => {
     setIsFading(true); // Start fade-out animation
     setTimeout(() => {
@@ -37,6 +43,9 @@ const SignUpForm = () => {
                   id="uname"
                   placeholder="Enter your username"
                   className="px-2 h-10 border-2 rounded-lg w-full"
+                  onChange={(event)=>{
+                    setinputs({...inputs,username: event.target.value})
+                  }}
                 />
               </div>
             </div>
@@ -46,14 +55,22 @@ const SignUpForm = () => {
             <label htmlFor="uname" className="font-semibold">Email</label>
           </div>
           <div>
-            <input type="text" id="uname" placeholder="Enter your email id" className="px-2 h-10 border-2 rounded-lg w-full"></input>
+            <input type="text" id="uname" placeholder="Enter your email id" className="px-2 h-10 border-2 rounded-lg w-full"
+            onChange={(event)=>{
+              setinputs({...inputs,email: event.target.value})
+            }}
+            ></input>
           </div>
 
           <div className="pb-2 pt-4">
             <label htmlFor="uname" className="font-semibold">Password</label>
           </div>
           <div>
-            <input type="password" id="uname" placeholder="*********" className="px-2 h-10 border-2 rounded-lg w-full"></input>
+            <input type="password" id="uname" placeholder="*********" className="px-2 h-10 border-2 rounded-lg w-full"
+            onChange={(event)=>{
+              setinputs({...inputs,password: event.target.value})
+            }}
+            ></input>
           </div>
 
           <div>
