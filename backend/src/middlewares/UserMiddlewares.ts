@@ -77,7 +77,7 @@ async function userAlreadyExistsCheckMiddlewareSignin(c:Context, next:Next){
         const user=await prisma.user.findFirst({
             where:{
                 email:email,
-                pass:hashedPass,
+                pass:hashedPass ,
                 uname:uname
             },select:{
                 id:true
