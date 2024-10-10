@@ -12,12 +12,35 @@ const userSchema=z.object({
     email:z.string().email(),
     pass:z.string().min(8)
 })
+const userSchemaSignin=z.object({
+    email:z.string().email(),
+    pass:z.string().min(8)
+})
 
 async function inputValidationMiddleware(c:Context,next:Next){
     try {
         const body=await c.req.json();
         //safe parsing
         const user=userSchema.safeParse(body);
+        //if success next else return error
+        if(user.success){
+            await next();
+        }else{
+            //send error message as json wih proper status code
+            return c.json({message:"Enter input credentials in proper format"},400);
+        }
+
+    } catch (error) {
+        //send error message as json wih proper status code
+        return c.json({message:"somer server issue in input validation middleware"},500);
+    }
+}
+
+async function inputValidationMiddlewareSignin(c:Context,next:Next){
+    try {
+        const body=await c.req.json();
+        //safe parsing
+        const user=userSchemaSignin.safeParse(body);
         //if success next else return error
         if(user.success){
             await next();
@@ -71,14 +94,12 @@ async function userAlreadyExistsCheckMiddlewareSignin(c:Context, next:Next){
         const data=await c.req.json();
         const email=data.email
         const pass=data.pass
-        const uname=data.uname
         const hashedPass:string = SHA256(pass).toString();
         //check if user already exists
         const user=await prisma.user.findFirst({
             where:{
                 email:email,
-                pass:hashedPass ,
-                uname:uname
+                pass:hashedPass
             },select:{
                 id:true
             }
@@ -97,4 +118,4 @@ async function userAlreadyExistsCheckMiddlewareSignin(c:Context, next:Next){
 
 
 //export both
-export { inputValidationMiddleware, userAlreadyExistsCheckMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignup };
+export { inputValidationMiddleware, userAlreadyExistsCheckMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignup, inputValidationMiddlewareSignin };

@@ -1,5 +1,5 @@
 import { Context, Hono } from "hono";
-import {inputValidationMiddleware, userAlreadyExistsCheckMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignup} from "../middlewares/UserMiddlewares";
+import {inputValidationMiddleware, inputValidationMiddlewareSignin, userAlreadyExistsCheckMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignup} from "../middlewares/UserMiddlewares";
 import { env } from "hono/adapter";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
@@ -38,10 +38,10 @@ userRoutes.post("/signup",inputValidationMiddleware,userAlreadyExistsCheckMiddle
     return c.json(user,201);
 });
 
-userRoutes.post("/signin",inputValidationMiddleware,userAlreadyExistsCheckMiddlewareSignin,async (c)=>{
+userRoutes.post("/signin",inputValidationMiddlewareSignin,userAlreadyExistsCheckMiddlewareSignin,async (c)=>{
     //we know that user already exists and inputs are in correct format so we will directly generate a jwt token valid for 6 hours and send it in response
     //we will use the username in hashed format to generate the token
-    const {uname}=await c.req.json();
+    const {email}=await c.req.json();
     //extract userid corresponsding to given uname and store that uid in jwt also the uname in db is not hashed its in normal form
     
 
@@ -52,7 +52,7 @@ userRoutes.post("/signin",inputValidationMiddleware,userAlreadyExistsCheckMiddle
     //get the user id from the database using the username
     const user=await prisma.user.findFirst({
         where:{
-            uname
+            email
         },select:{
             id:true
         }
