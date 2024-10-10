@@ -1,53 +1,103 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import axios from 'axios';
 import { z } from 'zod';
 
-// Define Zod schema for validation
+// Define Zod schema for sign-up validation (with uname)
 const signUpSchema = z.object({
-  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
+  uname: z.string().min(3, { message: 'uname must be at least 3 characters' }),
   email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' })
+  pass: z.string().min(6, { message: 'pass must be at least 6 characters' })
 });
+
+// Define Zod schema for sign-in validation (without uname)
+const signInSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address' }),
+  pass: z.string().min(6, { message: 'pass must be at least 6 characters' })
+});
+
 
 const SignUpForm = () => {
   const [sup, setsup] = useState(true);
   const [isFading, setIsFading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string | null>>({ username: null, email: null, password: null });
+  const [errors, setErrors] = useState<Record<string, string | null>>({ uname: null, email: null, pass: null });
 
   const [inputs, setinputs] = useState({
-    username: '',
+    uname: '',
     email: '',
-    password: ''
+    pass: ''
   });
+
+  const sendReq = async () => {
+    try {
+      console.log(inputs);
+      const response = await axios.post(`https://backend.shubhamapcollege.workers.dev/api/v1/${sup ? 'signup' : 'signin'}`, inputs);
+
+      if (sup) {
+        if (response.data.email === inputs.email) {
+          alert('Signup successful');
+        }
+      } else {
+        const token: string = response.data.token;
+        console.log(token);
+        alert('Sign-in successful! Token: ' + token);
+      }
+    } catch (error) {
+      console.error('Error during request:', error);
+      alert('Request failed. Please try again.');
+    }
+  };
 
   const toggleForm = () => {
     setIsFading(true); // Start fade-out animation
     setTimeout(() => {
       setsup(!sup);  // Switch content after fade-out
+      setErrors({ uname: null, email: null, pass: null });
+      setinputs({ uname: '', email: '', pass: '' }); // Reset inputs
       setIsFading(false); // Start fade-in animation
-      setErrors({ username: null, email: null, password: null });
     }, 400); // Delay to match the fade-out duration
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // Validate inputs using Zod schema
+  
+    // Validate based on the current form type (sign-up or sign-in)
+    const isValid = sup ? validateSignUp() : validateSignIn();
+  
+    if (isValid) {
+      await sendReq();  // Proceed to send the request if validation passes
+    }
+  };
+  
+  
+  const validateSignUp = () => {
     const validationResult = signUpSchema.safeParse(inputs);
-
     if (!validationResult.success) {
       const validationErrors = validationResult.error.format();
       setErrors({
-        username: validationErrors.username?._errors[0] || null,
+        uname: validationErrors.uname?._errors[0] || null,
         email: validationErrors.email?._errors[0] || null,
-        password: validationErrors.password?._errors[0] || null,
+        pass: validationErrors.pass?._errors[0] || null,
       });
-    } else {
-      // Proceed with form submission (no errors)
-      console.log('Form submitted successfully', inputs);
-      setErrors({ username: null, email: null, password: null });
+      return false;  // Validation failed
     }
+    setErrors({ uname: null, email: null, pass: null });
+    return true;  // Validation passed
   };
+  
+  const validateSignIn = () => {
+    const validationResult = signInSchema.safeParse(inputs);
+    if (!validationResult.success) {
+      const validationErrors = validationResult.error.format();
+      setErrors({
+        email: validationErrors.email?._errors[0] || null,
+        pass: validationErrors.pass?._errors[0] || null,
+      });
+      return false;  // Validation failed
+    }
+    setErrors({ email: null, pass: null });
+    return true;  // Validation passed
+  };
+  
 
   return (
     <div className="h-screen flex flex-col justify-center text-center">
@@ -65,19 +115,18 @@ const SignUpForm = () => {
           {sup && (
             <div className={`transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
               <div className="pb-2">
-                <label htmlFor="uname" className="font-semibold">Username</label>
+                <label htmlFor="username" className="font-semibold">Username</label>
               </div>
               <div>
                 <input
                   type="text"
-                  id="uname"
-                  placeholder="Enter your username"
+                  id="username"
+                  placeholder="Enter your uname"
                   className="px-2 h-10 border-2 rounded-lg w-full"
-                  onChange={(event) => {
-                    setinputs({ ...inputs, username: event.target.value });
-                  }}
+                  value={inputs.uname}
+                  onChange={(event) => setinputs({ ...inputs, uname: event.target.value })}
                 />
-                {errors.username && <p className="text-red-600">{errors.username}</p>}
+                {errors.uname && <p className="text-red-600">{errors.uname}</p>}
               </div>
             </div>
           )}
@@ -91,9 +140,8 @@ const SignUpForm = () => {
               id="email"
               placeholder="Enter your email"
               className="px-2 h-10 border-2 rounded-lg w-full"
-              onChange={(event) => {
-                setinputs({ ...inputs, email: event.target.value });
-              }}
+              value={inputs.email}
+              onChange={(event) => setinputs({ ...inputs, email: event.target.value })}
             />
             {errors.email && <p className="text-red-600">{errors.email}</p>}
           </div>
@@ -107,11 +155,10 @@ const SignUpForm = () => {
               id="password"
               placeholder="*********"
               className="px-2 h-10 border-2 rounded-lg w-full"
-              onChange={(event) => {
-                setinputs({ ...inputs, password: event.target.value });
-              }}
+              value={inputs.pass}
+              onChange={(event) => setinputs({ ...inputs, pass: event.target.value })}
             />
-            {errors.password && <p className="text-red-600">{errors.password}</p>}
+            {errors.pass && <p className="text-red-600">{errors.pass}</p>}
           </div>
 
           <div>
