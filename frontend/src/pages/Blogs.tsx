@@ -5,7 +5,7 @@ const Blogs = () => {
   const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string }; title: string; content: string; publishedDate?: string }> } = useBlogs();
 
   if (loading) {
-    return <div className="mt-16 px-1/5">Loading...</div>;
+    return <div className="mt-24 px-1/5">Loading...</div>;
   }
 
   return (

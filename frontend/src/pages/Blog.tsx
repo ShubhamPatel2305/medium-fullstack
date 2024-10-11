@@ -31,7 +31,7 @@ const Blog = () => {
           <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
             <span className="font-medium text-gray-600 dark:text-gray-300">
               {blog?.author?.uname ? (
-                blog.author.uname.split(" ").map((name) => name[0]).join("")
+                blog.author.uname.split(" ").map((name) => name[0]).join("").toUpperCase()
               ) : (
                 "NA" // Fallback if author or uname is not available
               )}

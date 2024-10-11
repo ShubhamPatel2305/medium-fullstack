@@ -14,7 +14,7 @@ const NavbarContainer: React.FC = () => {
   useEffect(() => {
     // Check auth status when component mounts
     checkAuthStatus();
-  }, [checkAuthStatus]);
+  }, [checkAuthStatus, isLoggedIn]);
 
   return (
     <Navbar

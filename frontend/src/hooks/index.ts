@@ -62,7 +62,7 @@ interface Blog {
   const useAuth = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
-  
+
     const checkAuthStatus = useCallback(async () => {
       const token = localStorage.getItem('token');
       const storedUsername = localStorage.getItem('username');

@@ -75,6 +75,12 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, username, onLogout }) => {
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
+                <button 
+                  className='w-auto px-5 py-2 h-auto bg-white text-gray-800 font-semibold rounded-md'
+                  onClick={()=>navigate("/publish")}
+                >
+                  Publish a blog
+                </button>
                 <div 
                   className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600 cursor-pointer" 
                   onClick={() => navigate("/profile")}
@@ -86,14 +92,14 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, username, onLogout }) => {
                 <button 
                   className="text-white hover:text-gray-300 transition-colors duration-200"
                   onClick={handleLogoutClick}
-                  aria-label="Logout"
+                  aria-label="Logout" 
                 >
                   <LogOut size={24} />
                 </button>
               </>
             ) : (
               <button 
-                className='w-24 h-9 bg-white text-gray-800 font-semibold rounded-md'
+                className='w-auto px-5 py-2 h-auto bg-white text-gray-800 font-semibold rounded-md'
                 onClick={handleSignupClick}
               >
                 Join now

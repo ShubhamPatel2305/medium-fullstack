@@ -23,10 +23,10 @@ const BlogCard = ({
             <div className="relative inline-flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
                 <span className="font-medium text-gray-600 dark:text-gray-300">{
                     //split authorname and include first letters of first and lastname 
-                    authorName.split(" ").map((name)=>name[0]).join("")
+                    authorName.split(" ").map((name)=>name[0]).join("").toUpperCase()
                     }</span>
             </div>
-            <div className="text-black font-medium text-md pl-1">{authorName}</div>
+            <div className="text-black font-medium text-md pl-2">{authorName}</div>
             <div className="text-gray-500 font-medium text-sm pl-1">{`. ${published}`}</div>
         </div>
         <div className="cursor-pointer flex flex-col" onClick={()=>navigate(`/blog/${id}`)}>
