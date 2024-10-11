@@ -2,8 +2,8 @@ import BlogCard from "../components/BlogCard";
 import { useBlogs } from "../hooks";
 
 const Blogs = () => {
-  const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string }; title: string; content: string; publishedDate?: string }> } = useBlogs();
-
+  const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string; id?: string }; title: string; content: string; publishedDate?: string }> } = useBlogs();
+  console.log(blogs);
   if (loading) {
     return <div className="mt-24 px-1/5">Loading...</div>;
   }
@@ -20,6 +20,7 @@ const Blogs = () => {
             content={blog.content}
             published={blog.publishedDate || "N/A"} // Show "N/A" if no published date
             id={blog.id}
+            authorId={blog.author?.id || "Unknown Author ID"}
           />
         ))
       ) : (

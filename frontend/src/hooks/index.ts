@@ -134,5 +134,24 @@ interface Blog {
     return { isLoggedIn, username, checkAuthStatus };
   };
 
+  const useGetUser=(ids:string)=>{
+    const [loading,setloading]=useState(true);
+    const [blogs,setblogs]=useState([]);
+    useEffect(()=>{
+        axios.get(`https://backend.shubhamapcollege.workers.dev/api/v1/getblogs/${ids}`,{
+            headers:{
+                "authorization":localStorage.getItem('token')
+            }
+        }).then((res)=>{
+            setblogs(res.data);
+            setloading(false);
+        }).catch((err)=>{
+            console.log(err);
+            setloading(false);
+        })
+    },[])
+    return {loading,blogs};
+  }
 
-export {useBlog,useBlogs,useAuth,useUserBlog}
+
+export {useBlog,useBlogs,useAuth,useUserBlog, useGetUser}

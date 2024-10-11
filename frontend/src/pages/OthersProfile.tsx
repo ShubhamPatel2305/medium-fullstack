@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
-import { useUserBlog } from '../hooks';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGetUser } from '../hooks';
 import BlogCard from '../components/BlogCard';
 
-const Profile = () => {
+const OthersProfile = () => {
     const navigate=useNavigate();
     const [username, setusername]=useState("U N");
-    useEffect(()=>{
-        setusername(localStorage.getItem('username') || "U N")
-    },[])
-    const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string; id?:string; }; title: string; content: string; publishedDate?: string }> } = useUserBlog();
+    const { id } = useParams<{ id: string }>();
+    const userId = id || ''; // Provide a default value if id is undefined
+    
+    const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string; id?:string; }; title: string; content: string; publishedDate?: string }> } = useGetUser(userId);
     console.log(blogs);
   if (loading) {
     return <div className="mt-24 px-1/5">Loading...</div>;
@@ -20,7 +20,7 @@ const Profile = () => {
     <div className='mt-16 px-1/5 grid grid-cols-10 h-screen '>
         <div className='col-span-8 border-gray-200 border-e-2 pt-28 pr-16 '>
             <div className='text-4xl text-black font-bold border-b-2 pb-10'>
-            {username}
+            {blogs[0].author?.uname}
             </div>
             <div className='pt-8'>
                 {/* Sho all users published blogs using blog page */}
@@ -48,10 +48,10 @@ const Profile = () => {
             <div className='pt-16 pl-10'>
                 <div className="relative inline-flex items-center justify-center w-24 h-24 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
                     <span className="font-medium text-gray-600 dark:text-gray-300">{
-                        username.split(" ").map((item)=>item[0]).join("").toUpperCase()
+                        (blogs[0].author?.uname || "U N").split(" ").map((item)=>item[0]).join("").toUpperCase()
                         }</span>
                 </div>
-                <div className="text-black font-medium text-md pl-1 pt-5">{username}</div>
+                <div className="text-black font-medium text-md pl-1 pt-5">{blogs[0].author?.uname}</div>
                 {/* logout button that clars local storage and navigates to home page / */}
                 <button className="underline text-red-400 pl-1 py-1 rounded-md mt-3" onClick={()=>{
                     localStorage.clear();
@@ -63,4 +63,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default OthersProfile

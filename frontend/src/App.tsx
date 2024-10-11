@@ -6,6 +6,7 @@ import Blogs from './pages/Blogs'
 import NavbarContainer from './components/NavbarContainer'
 import Publish from './pages/Publish'
 import Profile from './pages/Profile'
+import OthersProfile from './pages/OthersProfile'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/blog/:id" element={<Blog />} />
           <Route path="/publish" element={<Publish />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path='/profile/:id' element={<OthersProfile />} />
         </Routes>
       </BrowserRouter>
     </>
