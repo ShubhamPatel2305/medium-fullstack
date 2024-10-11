@@ -4,7 +4,8 @@ import { env } from "hono/adapter";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import SHA256 from 'crypto-js/sha256';
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
+import { tokenValidationMiddleware } from "../middlewares/BlogMiddlewares";
 
 const secret:string="secret";
 
@@ -54,7 +55,8 @@ userRoutes.post("/signin",inputValidationMiddlewareSignin,userAlreadyExistsCheck
         where:{
             email
         },select:{
-            id:true
+            id:true,
+            uname:true
         }
     });
 
@@ -62,10 +64,20 @@ userRoutes.post("/signin",inputValidationMiddlewareSignin,userAlreadyExistsCheck
         //generate jwt token
         const token:string = sign({id:user.id},secret,{expiresIn:"6h"});
         //send response with token
-        return c.json({token},200);
+        return c.json({token, uname: user.uname},200);
     }else{
         return c.json({message:"User does not exists"},401);
     }
+})
+
+userRoutes.get("/verifytoken",tokenValidationMiddleware,async (c)=>{
+    //if token is valid decode it and send user id in response with status 200
+    const token = c.req.header("authorization");
+    if (!token) {
+        return c.json({ message: "Authorization token is missing" }, 401);
+    }
+    const decodedToken = verify(token, secret) as unknown as { id: string };
+    return c.json({id:decodedToken.id},200);
 })
 
 //export
