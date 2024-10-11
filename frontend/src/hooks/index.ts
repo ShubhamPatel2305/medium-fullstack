@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
@@ -58,6 +59,35 @@ interface Blog {
   
     return { loading, blog };
   };
+
+  const useUserBlog=()=> {
+    const [loading,setloading]=useState(true);
+    const [blogs,setBlogs]=useState([]);
+
+    useEffect(()=>{
+      axios.get("https://backend.shubhamapcollege.workers.dev/api/v1/verifytoken",{
+        headers:{
+          "authorization":localStorage.getItem('token')
+        }}).then((res)=>{
+          let id:string=res.data.id;
+          axios.get(`https://backend.shubhamapcollege.workers.dev/api/v1/getblogs/${id}`,{
+              headers:{
+                  "authorization":localStorage.getItem('token')
+              }
+          }).then((res)=>{
+              setBlogs(res.data);
+              console.log(blogs)
+              setloading(false);
+          }).catch((err)=>{
+              console.log(err);
+              setloading(false);
+          })
+          }).catch((err)=>{
+            console.log(err);
+          })
+    },[])
+    return {loading,blogs};
+  }
   
   const useAuth = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -105,4 +135,4 @@ interface Blog {
   };
 
 
-export {useBlog,useBlogs,useAuth}
+export {useBlog,useBlogs,useAuth,useUserBlog}
