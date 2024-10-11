@@ -52,11 +52,6 @@ const OthersProfile = () => {
                         }</span>
                 </div>
                 <div className="text-black font-medium text-md pl-1 pt-5">{blogs[0].author?.uname}</div>
-                {/* logout button that clars local storage and navigates to home page / */}
-                <button className="underline text-red-400 pl-1 py-1 rounded-md mt-3" onClick={()=>{
-                    localStorage.clear();
-                    navigate('/');
-                }}>Logout</button>
             </div>
         </div>
     </div>
