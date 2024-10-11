@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 
 // Define Zod schema for sign-up validation (with uname)
 const signUpSchema = z.object({
@@ -17,6 +18,7 @@ const signInSchema = z.object({
 
 
 const SignUpForm = () => {
+  const navigate=useNavigate();
   const [sup, setsup] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({ uname: null, email: null, pass: null });
@@ -34,12 +36,14 @@ const SignUpForm = () => {
 
       if (sup) {
         if (response.data.email === inputs.email) {
-          alert('Signup successful');
+          navigate("/blogs");
         }
       } else {
         const token: string = response.data.token;
+        //add to local storage
+        localStorage.setItem('token', token);
         console.log(token);
-        alert('Sign-in successful! Token: ' + token);
+        navigate("/blogs");
       }
     } catch (error) {
       console.error('Error during request:', error);
