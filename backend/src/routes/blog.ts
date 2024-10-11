@@ -7,17 +7,17 @@ import { sign, verify } from "jsonwebtoken";
 
 const blogRoutes=new Hono();
 
-blogRoutes.post("/blog",tokenValidationMiddleware, inputValidationmiddleware, async (c)=>{
-    //add the blog to db
-    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c)
+blogRoutes.post("/blog", tokenValidationMiddleware, inputValidationmiddleware, async (c) => {
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     const prisma = new PrismaClient({
         datasourceUrl: DATABASE_URL
     }).$extends(withAccelerate());
 
-    const { title, content } = await c.req.json();
-    let id:string;
+    const { title, content } = await c.req.json(); // Assume `published` comes from the request body
+    let id: string;
+
     try {
-        const token=await c.req.header("authorization");
+        const token = await c.req.header("authorization");
         if (!token) {
             return c.json({ message: "Token is missing" }, 401);
         }
@@ -26,26 +26,41 @@ blogRoutes.post("/blog",tokenValidationMiddleware, inputValidationmiddleware, as
     } catch (error) {
         return c.json({ message: "Invalid token" }, 401);
     }
-    //add blog to db
+
+    // Function to get the current date in DD/MM/YYYY format
+    function getCurrentDate() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = today.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Add blog to db
     try {
+        const blogData = {
+            title,
+            content,
+            author: {
+                connect: {id},
+            },
+            // Set the published date if the blog is published
+            publishedDate: getCurrentDate()
+        };
+
         const blog = await prisma.blogs.create({
-            data: {
-                title,
-                content,
-                author: {
-                    connect: {
-                        id: id 
-                    }
-                }
-            },select :{
-                id:true,
+            data: blogData,
+            select: {
+                id: true,
             }
         });
-        return c.json(blog,201);
+
+        return c.json(blog, 201);
     } catch (error) {
-        return c.json({message:"Some server issue in adding blog to db"},500);
+        return c.json({ message: "Some server issue in adding blog to db" }, 500);
     }
-})
+});
+
 
 blogRoutes.get("/blog",tokenValidationMiddleware, async (c)=>{
     //return all blogs
@@ -57,7 +72,12 @@ blogRoutes.get("/blog",tokenValidationMiddleware, async (c)=>{
         const blogs=await prisma.blogs.findMany({
             select:{
                 title:true,
-                content:true,
+                content:true,//also send author name 
+                author:{
+                    select:{
+                        uname:true
+                    }
+                }
             }
         });
         return c.json(blogs,200);
