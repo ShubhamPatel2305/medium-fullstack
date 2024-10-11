@@ -9,7 +9,7 @@ const Blogs = () => {
   }
 
   return (
-    <div className="mt-16 px-1/5">
+    <div className="mt-24 px-1/5">
       <h1 className="text-2xl font-bold">Blogs</h1>
       {blogs.length > 0 ? (
         blogs.map((blog) => (
@@ -19,6 +19,7 @@ const Blogs = () => {
             title={blog.title}
             content={blog.content}
             published={blog.publishedDate || "N/A"} // Show "N/A" if no published date
+            id={blog.id}
           />
         ))
       ) : (

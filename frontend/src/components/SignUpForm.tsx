@@ -36,12 +36,13 @@ const SignUpForm = () => {
 
       if (sup) {
         if (response.data.email === inputs.email) {
-          navigate("/blogs");
+          toggleForm();
         }
       } else {
         const token: string = response.data.token;
-        //add to local storage
+        //add to local storage token and username
         localStorage.setItem('token', token);
+        localStorage.setItem('username', response.data.uname);
         console.log(token);
         navigate("/blogs");
       }
