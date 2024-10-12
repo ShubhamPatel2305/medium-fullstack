@@ -1,4 +1,4 @@
-import React from 'react'
+
 import SignUpQuote from '../components/SignUpQuote'
 import SignUpForm from '../components/SignUpForm'
 

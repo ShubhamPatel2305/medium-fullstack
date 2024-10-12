@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react';
+
 import { useBlog } from '../hooks';
 import { useParams } from 'react-router-dom';
 

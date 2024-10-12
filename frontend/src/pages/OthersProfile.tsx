@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUser } from '../hooks';
 import BlogCard from '../components/BlogCard';
 
 const OthersProfile = () => {
-    const navigate=useNavigate();
-    const [username, setusername]=useState("U N");
     const { id } = useParams<{ id: string }>();
     const userId = id || ''; // Provide a default value if id is undefined
     
