@@ -1,6 +1,4 @@
 import { useNavigate } from "react-router-dom"
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 interface BlogCardProps{
     authorName:string,
     title:string,

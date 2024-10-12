@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { useBlog } from '../hooks';
 import { useParams } from 'react-router-dom';
 
