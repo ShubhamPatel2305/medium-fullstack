@@ -13,7 +13,12 @@ const Profile = () => {
     const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string; id?:string; }; title: string; content: string; publishedDate?: string }> } = useUserBlog();
     console.log(blogs);
   if (loading) {
-    return <div className="mt-24 px-1/5">Loading...</div>;
+    return <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+      <p className="text-lg font-semibold">Please wait...</p>
+    </div>
+  </div>;
   }
 
   return (
@@ -46,8 +51,8 @@ const Profile = () => {
         </div>
         <div className='col-span-2'>
             <div className='pt-16 pl-10'>
-                <div className="relative inline-flex items-center justify-center w-24 h-24 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">{
+                <div className="relative inline-flex items-center justify-center w-24 h-24 overflow-hidden rounded-full bg-indigo-300">
+                    <span className="font-medium text-black">{
                         username.split(" ").map((item)=>item[0]).join("").toUpperCase()
                         }</span>
                 </div>

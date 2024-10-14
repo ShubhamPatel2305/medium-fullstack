@@ -69,9 +69,9 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, username, onLogout }) => {
 
   return (
     <>
-      <nav className="bg-gray-800 text-white p-4 top-0 fixed w-full z-40">
+      <nav className="bg-customBlue text-white p-4 top-0 fixed w-full z-40">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-3xl cursor-pointer" onClick={() => navigate("/blogs")}>Medium</div>
+          <div className="text-3xl cursor-pointer" onClick={() => navigate("/")}>Medium</div>
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>

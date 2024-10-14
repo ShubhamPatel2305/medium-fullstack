@@ -10,7 +10,12 @@ const OthersProfile = () => {
     const { loading, blogs }: { loading: boolean; blogs: Array<{ id: string; author?: { uname?: string; id?:string; }; title: string; content: string; publishedDate?: string }> } = useGetUser(userId);
     console.log(blogs);
   if (loading) {
-    return <div className="mt-24 px-1/5">Loading...</div>;
+    return <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+      <p className="text-lg font-semibold">Please wait...</p>
+    </div>
+  </div>;
   }
 
   return (

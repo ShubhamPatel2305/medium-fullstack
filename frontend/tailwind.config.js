@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      colors:{
+        customBlue: '#13016C',
+      },
       spacing:{
         '1/4':'25%',
         '1/5':'20%',

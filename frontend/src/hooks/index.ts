@@ -89,50 +89,48 @@ interface Blog {
     return {loading,blogs};
   }
   
-  const useAuth = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [username, setUsername] = useState('');
+const useAuth = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
 
-    const checkAuthStatus = useCallback(async () => {
-      const token = localStorage.getItem('token');
-      const storedUsername = localStorage.getItem('username');
-  
-      if (token && storedUsername) {
-        try {
-          const response = await axios.get('/api/verifytoken', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          
-          if (response.status === 200) {
-            setIsLoggedIn(true);
-            setUsername(storedUsername);
-          } else {
-            setIsLoggedIn(false);
-            setUsername('');
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
+  const checkAuthStatus = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    const storedUsername = localStorage.getItem('username');
+
+    if (token && storedUsername) {
+      try {
+        const response = await axios.get('/api/verifytoken', {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-        } catch (error) {
-          console.error('Error verifying token:', error);
-          setIsLoggedIn(false);
-          setUsername('');
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
+        });
+        
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+          setUsername(storedUsername);
+        } else {
+          throw new Error('Token verification failed');
         }
-      } else {
+      } catch (error) {
+        console.error('Error verifying token:', error);
         setIsLoggedIn(false);
         setUsername('');
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
       }
-    }, []);
-  
-    useEffect(() => {
-      checkAuthStatus();
-    }, [checkAuthStatus]);
-  
-    return { isLoggedIn, username, checkAuthStatus };
-  };
+    } else {
+      setIsLoggedIn(false);
+      setUsername('');
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  return { isLoggedIn, username, checkAuthStatus };
+};
+
 
   const useGetUser=(ids:string)=>{
     const [loading,setloading]=useState(true);

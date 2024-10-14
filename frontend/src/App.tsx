@@ -7,6 +7,7 @@ import NavbarContainer from './components/NavbarContainer'
 import Publish from './pages/Publish'
 import Profile from './pages/Profile'
 import OthersProfile from './pages/OthersProfile'
+import Hero from './components/Hero'
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
       <BrowserRouter>
       <NavbarContainer />
         <Routes>
+          <Route path="/" element={<Hero />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path='/blogs' element={<Blogs />} />

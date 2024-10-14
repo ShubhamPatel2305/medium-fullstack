@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ const SignUpForm = () => {
   const [sup, setsup] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({ uname: null, email: null, pass: null });
+  const [isLoading, setIsLoading] = useState(false); // New state for loader
 
   const [inputs, setinputs] = useState({
     uname: '',
@@ -30,6 +32,7 @@ const SignUpForm = () => {
   });
 
   const sendReq = async () => {
+    setIsLoading(true)
     try {
       console.log(inputs);
       const response = await axios.post(`https://backend.shubhamapcollege.workers.dev/api/v1/${sup ? 'signup' : 'signin'}`, inputs);
@@ -49,6 +52,8 @@ const SignUpForm = () => {
     } catch (error) {
       console.error('Error during request:', error);
       alert('Request failed. Please try again.');
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -105,7 +110,16 @@ const SignUpForm = () => {
   
 
   return (
+    
     <div className="h-screen flex flex-col justify-center text-center">
+      {isLoading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p className="text-lg font-semibold">Please wait...</p>
+          </div>
+        </div>
+      )}
       <div className={`text-4xl font-bold transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
         {sup ? "Create An Account" : "Login to existing account"}
       </div>
@@ -167,7 +181,7 @@ const SignUpForm = () => {
           </div>
 
           <div>
-            <button type="submit" className="w-full bg-gray-800 text-white h-10 rounded-lg mt-4">Submit</button>
+            <button type="submit" className="w-full bg-customBlue text-white h-10 rounded-lg mt-4">Submit</button>
           </div>
         </form>
       </div>
